@@ -43,7 +43,7 @@ export namespace EventSocket {
 
   export type Emit = (event: string, options: EmitParams) => void;
 
-  export type Payload<B = any, H = any> = {
+  export type Payload<B = unknown, H = unknown> = {
     body: B;
     headers: H;
     properties?: Properties;

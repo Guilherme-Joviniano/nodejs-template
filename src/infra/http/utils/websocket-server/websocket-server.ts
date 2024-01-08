@@ -2,8 +2,8 @@ import { readdirSync } from 'fs';
 import { resolve } from 'path';
 import { Server, ServerOptions, Socket } from 'socket.io';
 
-import { Job } from '@/job/protocols';
 import { webSocketEventAdapter } from '@/main/adapters/websocket-event-adapter';
+import { EventSocket } from '@/event';
 
 import { HttpServer } from '../http-server/http-server';
 import { EventOptions } from './types';
@@ -55,7 +55,10 @@ export class WebSocketServer {
     }
   }
 
-  public makeEvent(options: EventOptions, ...callbacks: (Function | Job)[]) {
+  public makeEvent(
+    options: EventOptions,
+    ...callbacks: (Function | EventSocket)[]
+  ) {
     if (!options.enabled) return;
 
     const payload = options.payload ?? {};
