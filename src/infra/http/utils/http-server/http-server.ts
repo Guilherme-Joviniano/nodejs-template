@@ -28,6 +28,7 @@ export class HttpServer {
   private express!: Express;
   private server!: Server;
   private websocketServer!: WebSocketServer;
+  private websocketServerOptions?: WebSocketServerOptions;
   private listenerOptions!: { port: number; callback: Callback };
   private baseUrl = '';
   private addressInfo!: AddressInfo | null | string;
@@ -50,6 +51,10 @@ export class HttpServer {
     this.express.use(this.makeSharedStateInitializer());
   }
 
+  private setWebSocketServerOptions(options?: WebSocketServerOptions) {
+    this.websocketServerOptions = options;
+  }
+
   public static getInstance(): HttpServer {
     if (!HttpServer.instance) {
       HttpServer.instance = new HttpServer();
@@ -62,8 +67,11 @@ export class HttpServer {
     return this?.addressInfo;
   }
 
-  private initializeWebSocketServer(options?: WebSocketServerOptions) {
-    this.websocketServer = WebSocketServer.getInstance(this, options);
+  private initializeWebSocketServer() {
+    this.websocketServer = WebSocketServer.getInstance(
+      this,
+      this.websocketServerOptions
+    );
     this.websocketServer.eventsDirectory('src/main/events');
     this.websocketServer.loadEvents();
   }
