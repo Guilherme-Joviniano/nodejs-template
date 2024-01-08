@@ -74,6 +74,7 @@ export class HttpServer {
     );
     this.websocketServer.eventsDirectory('src/main/events');
     this.websocketServer.loadEvents();
+    this.websocketServer.connect();
   }
 
   public listen(port: number | string, callback: () => void = () => {}) {

@@ -88,7 +88,7 @@ export class WebSocketServer {
     this.events.push({ options, callbacks });
   }
 
-  public async connect(
+  public connect(
     disconnectCallback: (socket: Socket) => void | Promise<void> = () => {}
   ) {
     this.server.on('connection', (socket) => {
