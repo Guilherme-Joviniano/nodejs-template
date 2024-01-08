@@ -2,22 +2,28 @@ import { readdirSync } from 'fs';
 import { resolve } from 'path';
 import { Server, ServerOptions, Socket } from 'socket.io';
 
-import { webSocketEventAdapter } from '@/main/adapters/websocket-event-adapter';
 import { EventSocket } from '@/event';
 
+import { Event as EventHandler } from './events';
 import { HttpServer } from '../http-server/http-server';
 import { EventOptions } from './types';
 
 export class WebSocketServer {
   private server!: Server;
   private static instance: WebSocketServer;
-
+  private eventHandler!: EventHandler;
   private constructor(
     private httpServer: HttpServer,
     private options?: ServerOptions
   ) {
     this.server = new Server(httpServer.getServer(), this.options);
+    this.eventHandler = new EventHandler(this);
   }
+
+  private events: {
+    options: EventOptions;
+    callbacks: (Function | EventSocket)[];
+  }[] = [];
 
   public static getInstance(httpServer: HttpServer, options?: ServerOptions) {
     if (!WebSocketServer.instance) {
@@ -50,20 +56,17 @@ export class WebSocketServer {
 
         if (typeof setup !== 'function') continue;
 
-        setup(this);
+        setup(this.eventHandler);
       }
     }
   }
 
-  public on(options: EventOptions, ...callbacks: (Function | EventSocket)[]) {
+  public register(
+    options: EventOptions,
+    ...callbacks: (Function | EventSocket)[]
+  ) {
     if (!options.enabled) return;
-
-    const payload = options.payload ?? {};
-
-    // carregar em memoria as configs de eventos
-    this.server.on(options.name, async (socket) => {
-      webSocketEventAdapter(...callbacks)(payload, socket);
-    });
+    this.events.push({ options, callbacks });
   }
 
   public async connect(

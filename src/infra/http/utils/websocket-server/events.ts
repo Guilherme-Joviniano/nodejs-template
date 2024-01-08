@@ -9,6 +9,6 @@ export class Event {
     options: EventOptions,
     ...callbacks: (Function | EventSocket)[]
   ): void {
-    this.webSocketServer.on(options, ...callbacks);
+    this.webSocketServer.register(options, ...callbacks);
   }
 }
