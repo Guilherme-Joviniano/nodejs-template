@@ -53,9 +53,13 @@ export const webSocketEventAdapter = (
     };
   });
 
-  return async (payload: Record<string, unknown>): Promise<void> => {
+  return async (
+    payload: Record<string, unknown>,
+    socket: EventSocket.Socket
+  ): Promise<void> => {
     await makeFlow({
       ...payload,
+      [SOCKET_KEY]: socket,
       [STATE_KEY]: {}
     })(...adaptedEvents)();
   };
