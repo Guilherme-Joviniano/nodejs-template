@@ -27,6 +27,7 @@ const SHARED_STATE_SYMBOL = Symbol('SharedState');
 export class HttpServer {
   private express!: Express;
   private server!: Server;
+  private websocketServer!: WebSocketServer;
   private listenerOptions!: { port: number; callback: Callback };
   private baseUrl = '';
   private addressInfo!: AddressInfo | null | string;
@@ -62,9 +63,9 @@ export class HttpServer {
   }
 
   private initializeWebSocketServer(options?: WebSocketServerOptions) {
-    WebSocketServer.getInstance(this, options).eventsDirectory(
-      'src/main/events'
-    );
+    this.websocketServer = WebSocketServer.getInstance(this, options);
+    this.websocketServer.eventsDirectory('src/main/events');
+    this.websocketServer.loadEvents();
   }
 
   public listen(port: number | string, callback: () => void = () => {}) {
@@ -77,7 +78,7 @@ export class HttpServer {
     this.server = this.express.listen(port, callback);
     this.addressInfo = this.server.address();
 
-    // TODO: implement websocket on here
+    this.initializeWebSocketServer();
 
     return this.server;
   }
@@ -105,6 +106,8 @@ export class HttpServer {
     this.listenerOptions = { callback, port: +port };
     this.server = this.express.listen(port, callback);
     this.addressInfo = this.server.address();
+
+    this.initializeWebSocketServer();
 
     return this.server;
   }
