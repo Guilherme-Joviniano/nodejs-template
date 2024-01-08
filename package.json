@@ -123,6 +123,7 @@
     "mongoose": "^7.4.2",
     "node-schedule": "^2.1.1",
     "reflect-metadata": "^0.1.13",
+    "socket.io": "^4.7.3",
     "sqlite3": "^5.1.6",
     "string-template": "^1.0.0",
     "tedious": "16.4.0",
@@ -148,5 +149,9 @@
     "rimraf": "^5.0.1",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.1.6"
+  },
+  "optionalDependencies": {
+    "bufferutil": "^4.0.8",
+    "utf-8-validate": "^6.0.3"
   }
 }
