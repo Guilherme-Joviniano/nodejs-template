@@ -55,14 +55,12 @@ export class WebSocketServer {
     }
   }
 
-  public makeEvent(
-    options: EventOptions,
-    ...callbacks: (Function | EventSocket)[]
-  ) {
+  public on(options: EventOptions, ...callbacks: (Function | EventSocket)[]) {
     if (!options.enabled) return;
 
     const payload = options.payload ?? {};
 
+    // carregar em memoria as configs de eventos
     this.server.on(options.name, async (socket) => {
       webSocketEventAdapter(...callbacks)(payload, socket);
     });
