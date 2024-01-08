@@ -1,7 +1,8 @@
+import { readdirSync } from 'fs';
+import { resolve } from 'path';
 import { Server, ServerOptions, Socket } from 'socket.io';
 
 import { Job } from '@/job/protocols';
-import { jobAdapter } from '@/main/adapters';
 import { webSocketEventAdapter } from '@/main/adapters/websocket-event-adapter';
 
 import { HttpServer } from '../http-server/http-server';
@@ -24,6 +25,34 @@ export class WebSocketServer {
     }
 
     return WebSocketServer.instance;
+  }
+
+  public async loadEvents(path: string): Promise<void> {
+    const extensionsToSearch = ['.TS', '.JS'];
+    const ignoreIfIncludes = ['.MAP.', '.SPEC.', '.TEST.'];
+
+    const files = readdirSync(path);
+
+    for await (const fileName of files) {
+      const fileNameToUpperCase = fileName.toLocaleUpperCase();
+
+      const hasAValidExtension = ignoreIfIncludes.map((text) =>
+        fileNameToUpperCase.includes(text)
+      );
+
+      const haveAValidName = extensionsToSearch.map((ext) =>
+        fileNameToUpperCase.endsWith(ext)
+      );
+
+      if (haveAValidName && hasAValidExtension) {
+        const filePath = resolve(path, fileName);
+        const setup = (await import(filePath)).default;
+
+        if (typeof setup !== 'function') continue;
+
+        setup(this);
+      }
+    }
   }
 
   public makeEvent(options: EventOptions, ...callbacks: (Function | Job)[]) {
