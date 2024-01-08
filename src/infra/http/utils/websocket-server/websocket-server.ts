@@ -3,6 +3,7 @@ import { resolve } from 'path';
 import { Server, ServerOptions, Socket } from 'socket.io';
 
 import { EventSocket } from '@/event';
+import { webSocketEventAdapter } from '@/main/adapters/websocket-event-adapter';
 
 import { Event as EventHandler } from './events';
 import { HttpServer } from '../http-server/http-server';
@@ -29,11 +30,29 @@ export class WebSocketServer {
     if (!WebSocketServer.instance) {
       WebSocketServer.instance = new WebSocketServer(httpServer, options);
     }
-
     return WebSocketServer.instance;
   }
 
-  public async loadEvents(path: string): Promise<void> {
+  public loadEvents(): void {
+    this.events.forEach((event) => {
+      this.server.on(event.options.name, (socket) => {
+        const payload = event.options.payload ?? {};
+        webSocketEventAdapter(...event.callbacks)(payload, socket);
+      });
+    });
+  }
+
+  public async loadEventsAsync(): Promise<void> {
+    const promises = this.events.map(async (event) => {
+      this.server.on(event.options.name, (socket) => {
+        const payload = event.options.payload ?? {};
+        webSocketEventAdapter(...event.callbacks)(payload, socket);
+      });
+    });
+    await Promise.all(promises);
+  }
+
+  public async eventsDirectory(path: string): Promise<void> {
     const extensionsToSearch = ['.TS', '.JS'];
     const ignoreIfIncludes = ['.MAP.', '.SPEC.', '.TEST.'];
 

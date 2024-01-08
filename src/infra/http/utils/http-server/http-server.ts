@@ -2,6 +2,7 @@ import { readdirSync } from 'fs';
 import server, { Server } from 'http';
 import { AddressInfo } from 'net';
 import { resolve } from 'path';
+import { ServerOptions as WebSocketServerOptions } from 'socket.io';
 import express, {
   Express,
   NextFunction,
@@ -19,6 +20,7 @@ import { Controller, Middleware } from '@/presentation/protocols';
 
 import { Route } from './route';
 import { Callback, ExpressRoute, RouteMiddleware } from './types';
+import { WebSocketServer } from '../websocket-server/websocket-server';
 
 const SHARED_STATE_SYMBOL = Symbol('SharedState');
 
@@ -59,6 +61,12 @@ export class HttpServer {
     return this?.addressInfo;
   }
 
+  private initializeWebSocketServer(options?: WebSocketServerOptions) {
+    WebSocketServer.getInstance(this, options).eventsDirectory(
+      'src/main/events'
+    );
+  }
+
   public listen(port: number | string, callback: () => void = () => {}) {
     if (this.isStarted) return;
     this.isStarted = true;
@@ -68,6 +76,8 @@ export class HttpServer {
     this.listenerOptions = { callback, port: +port };
     this.server = this.express.listen(port, callback);
     this.addressInfo = this.server.address();
+
+    // TODO: implement websocket on here
 
     return this.server;
   }
