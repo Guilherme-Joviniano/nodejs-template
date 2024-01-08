@@ -19,7 +19,6 @@ application.use(express.json());
 application.use(express.urlencoded({ extended: true }));
 application.use(apmHttpLoggerMiddleware);
 application.use(dbHttpLoggerMiddleware);
-
 application.setBaseUrl(SERVER.BASE_URI);
 
 const routesFolder = path.resolve(__dirname, 'routes');

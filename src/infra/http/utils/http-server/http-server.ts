@@ -51,7 +51,7 @@ export class HttpServer {
     this.express.use(this.makeSharedStateInitializer());
   }
 
-  private setWebSocketServerOptions(options?: WebSocketServerOptions) {
+  public setWebSocketServerOptions(options?: WebSocketServerOptions) {
     this.websocketServerOptions = options;
   }
 
