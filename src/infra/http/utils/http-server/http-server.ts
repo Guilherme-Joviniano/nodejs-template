@@ -69,13 +69,13 @@ export class HttpServer {
     return this?.addressInfo;
   }
 
-  private initializeWebSocketServer() {
+  private async initializeWebSocketServer() {
     if (!this.startWebSocketServer) return;
     this.websocketServer = WebSocketServer.getInstance(
       this,
       this.websocketServerOptions
     );
-    this.websocketServer.eventsDirectory('src/main/events');
+    await this.websocketServer.eventsDirectory('src/main/events');
     this.websocketServer.loadEvents();
     this.websocketServer.connect();
   }
@@ -119,7 +119,7 @@ export class HttpServer {
     this.server = this.express.listen(port, callback);
     this.addressInfo = this.server.address();
 
-    this.initializeWebSocketServer();
+    await this.initializeWebSocketServer();
 
     return this.server;
   }

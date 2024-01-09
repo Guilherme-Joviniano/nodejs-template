@@ -4,7 +4,7 @@ import { Event as EventClass } from './events';
 
 export type EventOptions = {
   name: string;
-  enabled?: boolean;
+  enabled: boolean;
   payload?: EventSocket.Payload;
 };
 
