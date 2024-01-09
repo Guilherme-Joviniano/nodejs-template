@@ -30,4 +30,8 @@ application.listenAsync(SERVER.PORT, () => {
     level: 'info',
     message: `Server is running on port: ${SERVER.PORT}`
   });
+  logger.log({
+    level: 'info',
+    message: `WebSocketServer is running on port: ${SERVER.PORT} \n Powered by https://socket.io`
+  });
 });
