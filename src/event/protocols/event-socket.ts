@@ -11,7 +11,7 @@ export interface EventSocket {
   ): EventSocket.Result;
 }
 
-type EmitPayload = Record<string, unknown> | Record<string, unknown>[];
+type Payload = Record<string, unknown> | Record<string, unknown>[];
 
 export type EventStatus =
   | 'OK'
@@ -25,19 +25,14 @@ export type EventStatus =
 
 export type EmitParams = {
   message: string;
-  payload: EmitPayload;
+  payload: Payload;
   status: EventStatus;
   disconnect?: boolean;
-  error?: EmitPayload;
+  error?: Payload;
 };
 
 export namespace EventSocket {
   type SetState = <T = SharedState>(state: T) => void;
-  type Properties = {
-    queue: string;
-    exchange: string;
-    routingKey: string;
-  };
 
   export type Socket = SocketIO;
 
@@ -46,7 +41,6 @@ export namespace EventSocket {
   export type Payload<B = unknown, H = unknown> = {
     body: B;
     headers: H;
-    properties?: Properties;
   };
 
   export type State = [SharedState, SetState];
