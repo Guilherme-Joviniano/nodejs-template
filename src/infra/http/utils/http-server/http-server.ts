@@ -71,12 +71,14 @@ export class HttpServer {
 
   private async initializeWebSocketServer() {
     if (!this.startWebSocketServer) return;
+
     this.websocketServer = WebSocketServer.getInstance(
-      this,
+      this.getHttpServerInstance(),
       this.websocketServerOptions
     );
+
     await this.websocketServer.eventsDirectory('src/main/events');
-    this.websocketServer.loadEvents();
+
     this.websocketServer.connect();
   }
 
@@ -87,10 +89,9 @@ export class HttpServer {
     this.loadRoutes();
 
     this.listenerOptions = { callback, port: +port };
-    this.server = this.express.listen(port, callback);
+    this.server = this.getServer();
+    this.server.listen(port, callback);
     this.addressInfo = this.server.address();
-
-    this.initializeWebSocketServer();
 
     return this.server;
   }
@@ -98,6 +99,10 @@ export class HttpServer {
   public getServer(): Server {
     this.loadRoutes();
     return server.createServer(this.express);
+  }
+
+  public getHttpServerInstance() {
+    return this.server;
   }
 
   public async listenAsync(
@@ -116,7 +121,8 @@ export class HttpServer {
     this.loadRoutes();
 
     this.listenerOptions = { callback, port: +port };
-    this.server = this.express.listen(port, callback);
+    this.server = server.createServer(this.express);
+    this.server.listen(port, callback);
     this.addressInfo = this.server.address();
 
     await this.initializeWebSocketServer();

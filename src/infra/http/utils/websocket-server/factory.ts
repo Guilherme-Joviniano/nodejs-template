@@ -6,5 +6,8 @@ import { WebSocketServer } from './websocket-server';
 export const makeWebSocketServer = (
   options?: ServerOptions
 ): WebSocketServer => {
-  return WebSocketServer.getInstance(HttpServer.getInstance(), options);
+  return WebSocketServer.getInstance(
+    HttpServer.getInstance().getHttpServerInstance(),
+    options
+  );
 };

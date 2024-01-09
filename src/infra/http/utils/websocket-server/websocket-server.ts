@@ -1,23 +1,24 @@
 import { readdirSync } from 'fs';
+import { Server as HttpServer } from 'http';
 import { resolve } from 'path';
 import { Server, ServerOptions, Socket } from 'socket.io';
 
-import { EventSocket } from '@/event';
 import { webSocketEventAdapter } from '@/main/adapters/websocket-event-adapter';
+import { EventSocket } from '@/event';
 
 import { Event as EventHandler } from './events';
-import { HttpServer } from '../http-server/http-server';
 import { EventOptions } from './types';
 
 export class WebSocketServer {
   private server!: Server;
   private static instance: WebSocketServer;
   private eventHandler!: EventHandler;
+
   private constructor(
-    private httpServer: HttpServer,
+    httpServer: HttpServer,
     private options?: Partial<ServerOptions>
   ) {
-    this.server = new Server(httpServer.getServer(), this.options);
+    this.server = new Server(httpServer, this.options);
     this.eventHandler = new EventHandler(this);
   }
 
@@ -26,7 +27,10 @@ export class WebSocketServer {
     callbacks: (Function | EventSocket)[];
   }[] = [];
 
-  public static getInstance(httpServer: HttpServer, options?: ServerOptions) {
+  public static getInstance(
+    httpServer: HttpServer,
+    options?: Partial<ServerOptions>
+  ) {
     if (!WebSocketServer.instance) {
       WebSocketServer.instance = new WebSocketServer(httpServer, options);
     }
@@ -37,18 +41,18 @@ export class WebSocketServer {
     this.server.close();
   }
 
-  public loadEvents(): void {
+  private loadEvents(socket: Socket): void {
     this.events.forEach((event) => {
-      this.server.on(event.options.name, (socket) => {
+      socket.on(event.options.name, (socket) => {
         const payload = event.options.payload ?? {};
         webSocketEventAdapter(...event.callbacks)(payload, socket);
       });
     });
   }
 
-  public async loadEventsAsync(): Promise<void> {
+  private async loadEventsAsync(socket: Socket): Promise<void> {
     const promises = this.events.map(async (event) => {
-      this.server.on(event.options.name, (socket) => {
+      socket.on(event.options.name, (socket) => {
         const payload = event.options.payload ?? {};
         webSocketEventAdapter(...event.callbacks)(payload, socket);
       });
@@ -92,11 +96,9 @@ export class WebSocketServer {
     this.events.push({ options, callbacks });
   }
 
-  public connect(
-    disconnectCallback: (socket: Socket) => void | Promise<void> = () => {}
-  ) {
+  public connect() {
     this.server.on('connection', (socket) => {
-      socket.on('disconnect', () => disconnectCallback(socket));
+      this.loadEvents(socket);
     });
   }
 }

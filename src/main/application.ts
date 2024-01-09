@@ -20,7 +20,14 @@ application.use(express.urlencoded({ extended: true }));
 application.use(apmHttpLoggerMiddleware);
 application.use(dbHttpLoggerMiddleware);
 application.setBaseUrl(SERVER.BASE_URI);
-application.setWebSocketServerOptions();
+application.setWebSocketServerOptions({
+  path: `${SERVER.BASE_URI}/events`,
+  transports: ['websocket', 'polling'],
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST']
+  }
+});
 
 const routesFolder = path.resolve(__dirname, 'routes');
 const publicRoutesFolder = path.resolve(routesFolder, 'public');
