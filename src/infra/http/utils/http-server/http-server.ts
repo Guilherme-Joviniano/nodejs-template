@@ -152,6 +152,8 @@ export class HttpServer {
     this.server.close(() => {
       logger.log({ level: 'info', message: 'Shutting down server' });
     });
+    if (!this.startWebSocketServer) return;
+    this.websocketServer.close();
   }
 
   public use(

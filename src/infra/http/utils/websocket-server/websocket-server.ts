@@ -33,6 +33,10 @@ export class WebSocketServer {
     return WebSocketServer.instance;
   }
 
+  public close() {
+    this.server.close();
+  }
+
   public loadEvents(): void {
     this.events.forEach((event) => {
       this.server.on(event.options.name, (socket) => {
