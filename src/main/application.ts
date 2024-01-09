@@ -20,6 +20,7 @@ application.use(express.urlencoded({ extended: true }));
 application.use(apmHttpLoggerMiddleware);
 application.use(dbHttpLoggerMiddleware);
 application.setBaseUrl(SERVER.BASE_URI);
+application.setWebSocketServerOptions();
 
 const routesFolder = path.resolve(__dirname, 'routes');
 const publicRoutesFolder = path.resolve(routesFolder, 'public');
