@@ -1,7 +1,7 @@
-import { Event } from '@/infra/http/utils/websocket-server/';
+import { Event } from '@/infra/http/utils/websocket-server';
 import { makeSendExampleEvent } from '@/main/factories/events';
 
-export default (event: Event) => {
+export default function (event: Event) {
   event.on(
     {
       name: 'example-event',
@@ -9,4 +9,4 @@ export default (event: Event) => {
     },
     makeSendExampleEvent()
   );
-};
+}
