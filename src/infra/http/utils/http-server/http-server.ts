@@ -2,7 +2,6 @@ import { readdirSync } from 'fs';
 import server, { Server } from 'http';
 import { AddressInfo } from 'net';
 import { resolve } from 'path';
-import { ServerOptions as WebSocketServerOptions } from 'socket.io';
 import express, {
   Express,
   NextFunction,
@@ -21,6 +20,7 @@ import { Controller, Middleware } from '@/presentation/protocols';
 import { Route } from './route';
 import { Callback, ExpressRoute, RouteMiddleware } from './types';
 import { WebSocketServer } from '../websocket-server/websocket-server';
+import { WebSocketServerOptions } from '../websocket-server';
 
 const SHARED_STATE_SYMBOL = Symbol('SharedState');
 

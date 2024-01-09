@@ -15,7 +15,7 @@ export class WebSocketServer {
   private eventHandler!: EventHandler;
   private constructor(
     private httpServer: HttpServer,
-    private options?: ServerOptions
+    private options?: Partial<ServerOptions>
   ) {
     this.server = new Server(httpServer.getServer(), this.options);
     this.eventHandler = new EventHandler(this);
