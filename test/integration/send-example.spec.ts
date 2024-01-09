@@ -1,6 +1,7 @@
 // TODO: validate websocket connection and
 
 import { application } from '@/main/application';
+import {} from 'socket.io-client';
 
 describe('example-event Test Suite', () => {
   beforeAll(async () => {
@@ -10,4 +11,5 @@ describe('example-event Test Suite', () => {
   afterAll(async () => {
     application.close();
   });
+  it('should receive hello world message on connect to event', () => {});
 });
