@@ -3,8 +3,8 @@ import { Server as HttpServer } from 'http';
 import { resolve } from 'path';
 import { Server, ServerOptions, Socket } from 'socket.io';
 
-import { webSocketEventAdapter } from '@/main/adapters/websocket-event-adapter';
 import { EventSocket } from '@/event';
+import { webSocketEventAdapter } from '@/main/adapters/websocket-event-adapter';
 
 import { Event as EventHandler } from './events';
 import { EventOptions } from './types';
@@ -15,10 +15,11 @@ export class WebSocketServer {
   private eventHandler!: EventHandler;
 
   private constructor(
-    httpServer: HttpServer,
+    private readonly httpServer: HttpServer,
     private options?: Partial<ServerOptions>
   ) {
-    this.server = new Server(httpServer, this.options);
+    this.server = new Server(httpServer, options);
+
     this.eventHandler = new EventHandler(this);
   }
 
@@ -43,18 +44,26 @@ export class WebSocketServer {
 
   private loadEvents(socket: Socket): void {
     this.events.forEach((event) => {
-      socket.on(event.options.name, (socket) => {
+      socket.on(event.options.name, (details) => {
         const payload = event.options.payload ?? {};
-        webSocketEventAdapter(...event.callbacks)(payload, socket);
+        webSocketEventAdapter(...event.callbacks)(
+          payload,
+          details,
+          this.server.emit.bind(this.server)
+        );
       });
     });
   }
 
   private async loadEventsAsync(socket: Socket): Promise<void> {
     const promises = this.events.map(async (event) => {
-      socket.on(event.options.name, (socket) => {
+      socket.on(event.options.name, (details) => {
         const payload = event.options.payload ?? {};
-        webSocketEventAdapter(...event.callbacks)(payload, socket);
+        webSocketEventAdapter(...event.callbacks)(
+          payload,
+          details,
+          this.server.emit.bind(this.server)
+        );
       });
     });
     await Promise.all(promises);
@@ -98,7 +107,7 @@ export class WebSocketServer {
 
   public connect() {
     this.server.on('connection', (socket) => {
-      this.loadEvents(socket);
+      this.loadEventsAsync(socket);
     });
   }
 }
