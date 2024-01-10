@@ -78,8 +78,6 @@ export class HttpServer {
     );
 
     await this.websocketServer.eventsDirectory('src/main/events');
-
-    this.websocketServer.connect();
   }
 
   public listen(port: number | string, callback: () => void = () => {}) {
@@ -122,10 +120,14 @@ export class HttpServer {
 
     this.listenerOptions = { callback, port: +port };
     this.server = server.createServer(this.express);
-    this.server.listen(port, callback);
-    this.addressInfo = this.server.address();
 
     await this.initializeWebSocketServer();
+
+    this.websocketServer.connect();
+
+    this.server.listen(port, callback);
+
+    this.addressInfo = this.server.address();
 
     return this.server;
   }
