@@ -25,7 +25,7 @@ application.setWebSocketServerOptions({
   transports: ['websocket', 'polling'],
   cors: {
     origin: '*',
-    methods: ['GET', 'POST']
+    methods: ['GET', 'POST', 'PUT', 'DELETE']
   }
 });
 
