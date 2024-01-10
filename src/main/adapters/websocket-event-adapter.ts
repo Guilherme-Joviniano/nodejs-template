@@ -1,26 +1,36 @@
+import { EmitParams, EventSocket } from '@/event';
 import {
   HTTP_STATUS_DICTIONARY,
   convertCamelCaseKeysToSnakeCase
 } from '@/util';
-import { EmitParams, EventSocket } from '@/event';
 
 import makeFlow from './flow-adapter';
 
 const STATE_KEY = Symbol('STATE');
 const SOCKET_KEY = Symbol('SOCKET');
+const EMITTER_KEY = Symbol('EMITTER');
 
 type State = Record<string, unknown>;
 
 type Payload = EventSocket.Payload & { [key: string | symbol]: State } & {
   [SOCKET_KEY]: EventSocket.Socket;
+} & {
+  [EMITTER_KEY]: Emitter;
 };
+
+type Emitter = (event: string, ...args: any[]) => void;
 
 export const webSocketEventAdapter = (
   ...events: (EventSocket | Function)[]
 ) => {
   const adaptedEvents = events.map((event) => {
     return (
-      { [STATE_KEY]: state, [SOCKET_KEY]: socket, ...payload }: Payload,
+      {
+        [STATE_KEY]: state,
+        [SOCKET_KEY]: socket,
+        [EMITTER_KEY]: emitter,
+        ...payload
+      }: Payload,
       next: EventSocket.Next
     ) => {
       const setState = (data: State) => {
@@ -40,7 +50,7 @@ export const webSocketEventAdapter = (
           error: options.error
         });
 
-        socket.emit(event, result);
+        emitter(event, result);
 
         if (options.disconnect) socket.disconnect();
       };
@@ -55,11 +65,13 @@ export const webSocketEventAdapter = (
 
   return async (
     payload: Record<string, unknown>,
-    socket: EventSocket.Socket
+    socket: EventSocket.Socket,
+    emitter: Emitter
   ): Promise<void> => {
     await makeFlow({
       ...payload,
       [SOCKET_KEY]: socket,
+      [EMITTER_KEY]: emitter,
       [STATE_KEY]: {}
     })(...adaptedEvents)();
   };
